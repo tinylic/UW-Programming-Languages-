@@ -15,8 +15,8 @@ datatype valu = Const of int
 	      | Constructor of string * valu
 
 fun g f1 f2 p =
-    let 
-	val r = g f1 f2 
+    let
+	val r = g f1 f2
     in
 	case p of
 	    Wildcard          => f1 ()
@@ -49,11 +49,11 @@ fun longest_helper cmp acc string_list =
 
 val longest_string3 = longest_helper (fn(a, b) => a > b) ""
 val longest_string4 = longest_helper (fn(a, b) => a >= b) ""
-				     
+
 val longest_capitalized = longest_string3 o only_capitals
 
 val rev_string = String.implode o List.rev o String.explode
-						 
+
 fun first_answer func list =
   case list of
       [] => raise NoAnswer
@@ -65,9 +65,11 @@ fun first_answer func list =
 fun all_answers f ls =
   let fun aux (f, ls, acc) =
 	case ls of
-	    [] => SOME acc
+	    [] => case acc of
+							[] => NONE
+						|	SOME ac => SOME ac
 	  | head::tail => case f head of
-			      NONE => NONE
+			      NONE => aux(f, tail, acc)
 			    | SOME v => aux(f, tail, acc@v)
   in
       aux(f, ls, [])
@@ -76,9 +78,9 @@ fun all_answers f ls =
 fun count_wildcards p = g (fn(e) => 1) (fn(e) => 0) p
 
 fun count_wild_and_variable_lengths p = ((g(fn(e) => 1) (fn(e) => 0) p) + (g(fn(e) => 0) (fn(s) => String.size s) p))
-					    
+
 fun count_some_var (str, p) = g (fn(e) => 0) ( fn(e) => if str = e then 1 else 0) p
-			       
+
 fun check_pat p =
 
   let fun generate_variable_string_list (p) =
@@ -117,5 +119,3 @@ fun match(valu, pattern) =
 
 fun first_match valu p_list =
   SOME (first_answer (fn (p) => match (valu, p)) p_list) handle NoAnswer => NONE
-
- 
