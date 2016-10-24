@@ -62,17 +62,23 @@ fun first_answer func list =
 		   | SOME v => v
 
 
-fun all_answers f ls =
-  let fun aux (f, ls, acc) =
-	case ls of
-	    [] => case acc of
-							[] => NONE
-						|	SOME ac => SOME ac
-	  | head::tail => case f head of
-			      NONE => aux(f, tail, acc)
-			    | SOME v => aux(f, tail, acc@v)
+fun all_answers f a_list =
+  let
+      fun helper (a_list, accu) =
+	case a_list of
+            [] => SOME []
+	  | a::al2 => case f a of
+                          NONE => NONE
+			| SOME bl =>
+                          let
+                              val new_accu = case accu of
+                                                 NONE => bl
+                                               | SOME bl1 => bl1 @ bl
+                          in
+                              helper (al2, SOME new_accu )
+                          end
   in
-      aux(f, ls, [])
+      helper(a_list, NONE)
   end
 
 fun count_wildcards p = g (fn(e) => 1) (fn(e) => 0) p
